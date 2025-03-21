@@ -394,10 +394,10 @@ class MasterController extends Controller
     $user = Auth::user();
     Log::info('Checkout attempt by user', ['user_id' => $user->id, 'request_data' => $request->all()]);
 
+    DB::beginTransaction();
     try {
       // Ambil ID cart yang dipilih
       $selectedCartIds = array_map('intval', array_keys($request->input('selectedCartIds', [])));
-      Log::info('select cart:', $selectedCartIds);
 
       if (empty($selectedCartIds)) {
         return response()->json(['error' => 'No cart items selected'], 400);
@@ -405,7 +405,6 @@ class MasterController extends Controller
 
       // Ambil quantity per item
       $cartQuantities = array_map('intval', $request->input('cartQuantities', []));
-      Log::info('Cart Quantities:', $cartQuantities);
 
       // Ambil data keranjang
       $cartItems = Cart::where('user_id', $user->id)
@@ -413,17 +412,33 @@ class MasterController extends Controller
         ->with(['product', 'sizeStock'])
         ->get();
 
-      Log::info('Cart Items Query:', $cartItems->toArray());
-
       if ($cartItems->isEmpty()) {
         return response()->json(['error' => 'No valid cart items found'], 404);
       }
 
-      // ✅ Inisialisasi total
       $total = 0;
       $itemDetails = [];
+      $productData = []; // Untuk disimpan ke kolom products di database
 
-      // ✅ Hitung total harga dan item details
+      // **Ambil ongkir**
+      $shippingCost = 0;
+      if ($request->city_id) {
+        $city = City::find($request->city_id);
+        $shippingCost = $city ? $city->shipping_price : 0;
+      }
+
+      // **Ambil Voucher**
+      $voucherDiscount = 0;
+      $voucherId = null;
+      $voucherName = $request->voucher_name;
+      if ($voucherName) {
+        $voucher = Voucher::where('voucher_name', $voucherName)->first();
+        if ($voucher) {
+          $voucherId = $voucher->id;
+          $voucherDiscount = $voucher->discount_voucher;
+        }
+      }
+
       foreach ($cartItems as $item) {
         $sizeStock = SizeStockProduct::where('product_id', $item->product->id)
           ->where('size', optional($item->sizeStock)->size)
@@ -431,49 +446,53 @@ class MasterController extends Controller
 
         $qty = $cartQuantities[$item->id] ?? 1;
         $basePrice = $item->product->discounted_price * $qty;
+        $total += $basePrice;
 
-        $shippingCost = 0;
-        if ($request->city_id) {
-          $city = City::find($request->city_id);
-          $shippingCost = $city ? $city->shipping_price : 0;
-        }
-
-        $voucherDiscount = 0;
-        $voucherId = $request->voucher_id;
-        if ($voucherId) {
-          $voucher = Voucher::find($voucherId);
-          if ($voucher) {
-            $voucherDiscount = $voucher->discount_voucher;
-          }
-        }
-
-        // ✅ Perhitungan totalAmount seperti kode asli
-        $totalAmount = max(0, $basePrice + $shippingCost - $voucherDiscount);
-
-        // ✅ Update total keseluruhan
-        $total += $totalAmount;
-
-        // ✅ Item details
+        // **Tambahkan ke Midtrans**
         $itemDetails[] = [
           'id' => $item->product->id,
-          'name' => !empty($item->product->product_name) ? $item->product->product_name : 'Unknown Product',
-          'price' => $totalAmount,
-          'quantity' => 1 // Quantity selalu 1 karena price sudah total
+          'name' => $item->product->product_name ?? 'Unknown Product',
+          'price' => $item->product->discounted_price, // Harga per item
+          'quantity' => $qty
         ];
 
-        Log::info('Item calculation:', [
+        // **Simpan ke productData**
+        $productData[] = [
           'product_id' => $item->product->id,
-          'basePrice' => $basePrice,
-          'shippingCost' => $shippingCost,
-          'voucherDiscount' => $voucherDiscount,
-          'totalAmount' => $totalAmount
-        ]);
+          'qty' => $qty,
+          'size_stock_product_id' => $sizeStock->id
+        ];
       }
 
-      // Buat ID Order
+      // **Tambahkan biaya ongkir sebagai item terpisah**
+      if ($shippingCost > 0) {
+        $itemDetails[] = [
+          'id' => 'SHIPPING',
+          'name' => 'Shipping Cost',
+          'price' => $shippingCost,
+          'quantity' => 1
+        ];
+        $total += $shippingCost;
+      }
+
+      // **Tambahkan voucher diskon sebagai item terpisah**
+      if ($voucherDiscount > 0) {
+        $itemDetails[] = [
+          'id' => 'VOUCHER',
+          'name' => 'Voucher Discount',
+          'price' => -$voucherDiscount, // Harga negatif untuk diskon
+          'quantity' => 1
+        ];
+        $total -= $voucherDiscount;
+      }
+
+      // Pastikan total tidak negatif
+      $total = max(0, $total);
+
+      // **Buat Order ID**
       $order_id = 'ORDER-' . time();
 
-      // Siapkan data transaksi Midtrans
+      // **Siapkan data transaksi Midtrans**
       $transaction = [
         'transaction_details' => [
           'order_id' => $order_id,
@@ -484,31 +503,46 @@ class MasterController extends Controller
           'first_name' => $user->name,
           'email' => $user->email,
           'billing_address' => [
-            'address' => $request->address // ✅ Fixing typo from addres to address
+            'address' => $request->address
           ]
         ]
       ];
 
-      // Log data transaksi sebelum dikirim ke Midtrans
-      Log::info('Midtrans transaction data', $transaction);
+      Log::info('Transaction Data', $transaction);
 
-      // Dapatkan Snap Token dari Midtrans
+      // **Dapatkan Snap Token dari Midtrans**
       $snapToken = Snap::getSnapToken($transaction);
 
-      // Simpan data order di session untuk callback
-      session([
-        'order_id' => $order_id,
-        'selectedCartIds' => $selectedCartIds,
-        'cartQuantities' => $cartQuantities,
+      // **Simpan Order ke Database**
+      $order = Order::create([
+        'user_id' => $user->id,
+        'product_id' => $item->product->id,
+        'payment_id' => $request->payment_method,
+        'payment_status' => 'pending',
+        'payment_token' => $snapToken,
         'city_id' => $request->city_id,
-        'voucher_id' => $request->voucher_id,
-        'address' => $request->address
+        'size_stock_product_id' => $sizeStock->id,
+        'voucher_id' => $voucherId,
+        'order_code' => $order_id,
+        'addres' => $request->addres,
+        'payment_proof' => null,
+        'qty' => array_sum($cartQuantities),
+        'total_amount' => $total,
+        'status' => 'pending',
+        'order_item' => json_encode($productData)
       ]);
+
+      Cart::where('user_id', $user->id)
+        ->whereIn('id', $selectedCartIds)
+        ->delete();
+
+      DB::commit();
 
       return response()->json([
         'snap_token' => $snapToken,
-        'order_id' => $order_id
+        'order_id' => $order->id
       ]);
+
     } catch (\Exception $e) {
       Log::error('Checkout error: ' . $e->getMessage(), [
         'exception' => $e,
@@ -517,6 +551,7 @@ class MasterController extends Controller
       return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
     }
   }
+
 
   public function getSnapToken(Request $request)
   {
@@ -537,7 +572,7 @@ class MasterController extends Controller
           $snapToken = \Midtrans\Snap::getSnapToken($params);
           return response()->json(['snap_token' => $snapToken]);
       } catch (\Exception $e) {
-        \Log::error('Midtrans Error: ' . $e->getMessage()); // Simpan log error
+        Log::error('Midtrans Error: ' . $e->getMessage()); // Simpan log error
           return response()->json(['error' => $e->getMessage()], 500);
       }
   }

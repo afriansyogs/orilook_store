@@ -20,6 +20,15 @@ class UsersSeeder extends Seeder
             'addres' => 'Jl. Dekat rumah 12',
             'role' => 'admin',
             'password' => bcrypt('12345678'), 
-        ]);
+        ],
+        [
+            'name' => 'user1',
+            'email' => 'user1@gmail.com',
+            'no_hp' => '081234567842',
+            'addres' => 'Jl. Dekat rumah 12',
+            'role' => 'user',
+            'password' => bcrypt('12345678'), 
+        ]
+    );
     }
 }

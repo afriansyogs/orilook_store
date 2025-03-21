@@ -12,16 +12,25 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
-        'payment_id',
-        'city_id',
+        'product_id', // Jika masih ingin menyimpan 1 produk per order
         'size_stock_product_id',
         'voucher_id',
+        'order_code', // ID unik pesanan
+        'payment_id',
+        'payment_token', // Token Midtrans
+        'payment_status', // Status pembayaran
+        'city_id',
         'addres',
-        'payment_proof',
         'qty',
         'total_amount',
-        'status'
+        'status', // Bisa untuk status umum (pending, completed, canceled)
+        'shipping_status', // Status pengiriman
+        'tracking_number', // Nomor resi
+        'order_item', // Detail produk dalam format JSON
+    ];
+
+    protected $casts = [
+        'order_item' => 'array', // Supaya otomatis didecode jadi array
     ];
 
     public function user() {
@@ -54,19 +63,19 @@ class Order extends Model
     return $this->hasOne(Review::class);
 }
 
-protected static function boot()
-    {
-        parent::boot();
+    protected static function boot()
+        {
+            parent::boot();
 
-        static::created(function ($order) {
-            $sizeStock = \App\Models\SizeStockProduct::find($order->size_stock_product_id);
+            static::created(function ($order) {
+                $sizeStock = \App\Models\SizeStockProduct::find($order->size_stock_product_id);
 
-            if ($sizeStock) {
-                // Pastikan stok tidak negatif
-                $sizeStock->stock = max(0, $sizeStock->stock - $order->qty);
-                $sizeStock->save();
-            }
-        });
-    }
+                if ($sizeStock) {
+                    // Pastikan stok tidak negatif
+                    $sizeStock->stock = max(0, $sizeStock->stock - $order->qty);
+                    $sizeStock->save();
+                }
+            });
+        }
 
 }
