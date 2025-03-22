@@ -40,7 +40,7 @@
                 </div>
                 <form method="POST" action="{{ route('checkout') }}" enctype="multipart/form-data">
                     @csrf
-                    <div id="address_section" class="white p-6 rounded-lg shadow-lg">
+                    <div id="address_section" class="white p-6 rounded-lg shadow-lg hidden">
                         <div class="mb-4">
                             <label for="address" class="block text-sm font-medium">addres</label>
                             <textarea name="address" class="textarea textarea-bordered w-full" required>{{ auth()->user()->addres }}</textarea>
@@ -103,9 +103,9 @@
 
                 <!-- Pilihan Pembayaran -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium">Metode Pembayaran</label>
+                    <label class="block text-sm font-medium">Metode Pengiriman</label>
                     <select id="payment_method" name="payment_method" class="select select-bordered w-full" required>
-                        <option value="">Pilih Metode Pembayaran</option>
+                        <option value="">Pilih Metode Pengiriman</option>
                         @foreach ($payments as $payment)
                             <option value="{{ $payment->id }}" data-name="{{ $payment->payment_name }}"
                                 data-img="{{ asset('storage/' . $payment->payment_img) }}">
@@ -117,7 +117,7 @@
 
                 <!-- Tampilkan Gambar Pembayaran -->
                 <div id="payment_image_section" class="mb-4 hidden">
-                    <img id="payment_image" src="" alt="Metode Pembayaran" class="w-full h-auto object-contain">
+                    {{-- <img id="payment_image" src="" alt="Metode Pembayaran" class="w-full h-auto object-contain"> --}}
                 </div>
 
                 <!-- Upload Bukti Pembayaran -->
@@ -162,7 +162,7 @@
                 </div>
 
                 <!-- Tombol Checkout -->
-                <button type="submit" class="btn btn-primary w-full mt-4" id="pay-button">Bayar Sekarang</button>
+                <button type="submit" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full mt-3" id="pay-button">Bayar Sekarang</button>
             </div>
             </form>
         </div>

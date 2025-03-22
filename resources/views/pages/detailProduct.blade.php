@@ -16,7 +16,7 @@
         </div>
       <div class="flex mt-[4rem] space-x-2 overflow-x-auto">
         @foreach ($productDetail->product_img as $image)
-          <img src="{{ asset('storage/' . $image) }}" alt="{{ $productDetail->product_name }}" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-500" onclick="changeImage(this.src)"/>
+          <img src="{{ asset('storage/' . $image) }}" alt="{{ $productDetail->product_name }}" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-2 hover:ring-black" onclick="changeImage(this.src)"/>
         @endforeach
       </div>
     </div>

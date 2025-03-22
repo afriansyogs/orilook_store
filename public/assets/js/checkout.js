@@ -63,17 +63,15 @@ document.addEventListener("DOMContentLoaded", function () {
         let selectedPayment =
             paymentMethod.options[paymentMethod.selectedIndex];
         let paymentName = selectedPayment.dataset.name;
-        let paymentImg = selectedPayment.dataset.img;
+        // let paymentImg = selectedPayment.dataset.img;
         // let inputFile = document.getElementById("input_file");
-        console.log(paymentName)
 
-        if (paymentName === "Ambil Ditempat") {
+        if (paymentName === undefined || paymentName === "") {
             addressSection.style.display = "none";
             shippingPrice.innerText = 0;
             shippingPriceTotal.innerText = 0;
             updateTotalPrice();
-            paymentImage.src = paymentImg;
-
+            // paymentImage.src = paymentImg;
 
             provinceSelect.value = "";
             citySelect.innerHTML = '<option value="">Pilih Kota</option>';
@@ -82,10 +80,24 @@ document.addEventListener("DOMContentLoaded", function () {
             provinceSelect.removeAttribute("required");
             citySelect.removeAttribute("required");
             addressSection.removeAttribute("required");
-            if (buktiTrasaksi) buktiTrasaksi.removeAttribute("required");
+        } else if (paymentName === "Ambil Ditempat") {
+            addressSection.style.display = "none";
+            shippingPrice.innerText = 0;
+            shippingPriceTotal.innerText = 0;
+            updateTotalPrice();
+            // paymentImage.src = paymentImg;
+
+            provinceSelect.value = "";
+            citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+            citySelect.disabled = true;
+
+            provinceSelect.removeAttribute("required");
+            citySelect.removeAttribute("required");
+            addressSection.removeAttribute("required");
+            // if (buktiTrasaksi) buktiTrasaksi.removeAttribute("required");
         } else {
             addressSection.style.display = "block";
-            paymentImage.src = paymentImg;
+            // paymentImage.src = paymentImg;
             paymentImageSection.classList.remove("hidden");
 
             provinceSelect.setAttribute("required", "true");

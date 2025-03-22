@@ -95,7 +95,7 @@
             <div class="card-body text-center">
                 <h2 class="card-title justify-center text-2xl mb-4">Keranjang anda kosong</h2>
                 <p class="mb-4">Tambahkan product ke keranjang anda.</p>
-                <a href="{{ route('productPage') }}" class="btn btn-primary">Lanjutakn belanja</a>
+                <a href="{{ route('productPage') }}" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full">Lanjutakn belanja</a>
             </div>
         </div>
     @endif

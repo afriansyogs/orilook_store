@@ -5,7 +5,7 @@
     
     {{-- Bagian Gambar (Tengah atas-bawah di Laptop, Atas di Mobile & Tablet) --}}
     <div class="w-full flex justify-center lg:w-1/3">
-      <div class="w-40 h-40 md:w-48 md:h-48 lg:h-56 lg:w-56 rounded-full ring-4 ring-blue-500 ring-offset-2 overflow-hidden">
+      <div class="w-40 h-40 md:w-48 md:h-48 lg:h-56 lg:w-56 rounded-full ring-4 ring-red-500 ring-offset-2 overflow-hidden">
         @if(!empty($userDetail->user_img))
           <img src="{{ asset('storage/profile/' . $userDetail->user_img) }}" alt="User Profile" class="object-cover w-full h-full">
         @else

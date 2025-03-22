@@ -61,7 +61,7 @@
 
       <!-- View Button -->
       <a href="{{ route('detailProduct', $product->id) }}" 
-         class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full mt-4">
+        class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full mt-4">
         View Details
       </a>
     </div>
