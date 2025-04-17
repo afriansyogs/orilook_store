@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->enum('status', ['pending', 'pesanan_dibuat', 'completed', 'request cancel', 'canceled'])->default('pending')->change();
             
-            $table->string('order_code')->unique()->after('voucher_id'); // ID unik pesanan
-            $table->string('payment_token')->nullable()->after('payment_id'); // Token Midtrans
-            $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending')->nullable()->after('payment_token'); // Status pembayaran
-            $table->enum('shipping_status', ['not_shipped', 'shipped', 'delivered', 'returned'])->default('not_shipped')->nullable()->after('status'); // Status pengiriman
-            $table->text('order_item')->nullable()->after('shipping_status'); // Detail produk dalam format JSON
+            $table->string('order_code')->unique()->after('voucher_id'); 
+            $table->string('payment_token')->nullable()->after('payment_id');
+            $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending')->nullable()->after('payment_token'); 
+            $table->enum('shipping_status', ['not_shipped', 'shipped', 'delivered', 'returned'])->default('not_shipped')->nullable()->after('status'); 
+            $table->text('order_item')->nullable()->after('shipping_status'); 
 
         // Optional: Jika kolom lama seperti `payment_proof` sudah tidak digunakan
         $table->dropColumn(['payment_proof']);

@@ -27,19 +27,35 @@
                             'cancel' => 'text-gray-400',
                             'request cancel' => 'text-gray-600',
                             'pending' => 'text-red-500',
-                            'pesanan dibuat' => 'text-orange-500',
-                            'pesanan diantar' => 'text-yellow-500',
-                            'pesanan sampai' => 'text-blue-500',
-                            'menunggu confirm user' => 'text-gray-500',
+                            'pesanan_dibuat' => 'text-orange-500',
                             'completed' => 'text-green-500',
                             default => 'text-neutral-500',
                         };
+
+                        $statusShipped = match ($order->shipping_status) {
+                            'shipped' => 'text-yellow-500',
+                            'delivered' => 'text-blue-500',
+                            'returned' => 'text-gray-500',
+                            default => 'text-neutral-500',
+                        };
+
+                        $shippedList = match ($order->shipping_status) {
+                            'not_shipped' => 'Belum Dikirim',
+                            'delivered' => 'Pesanan Dikirim',
+                            'returned' => 'Retuned Barang',
+                            default => 'text-neutral-500',
+                        };
+
+                        $statusList = ['pending','pesanan_dibuat','completed','request cancel','canceled'];
                     @endphp
-                    <div class="w-full md:w-1/4 text-center">
+                    <div class="w-full md:w-1/2 text-center">
                         <p class="text-gray-500 text-sm">Status:</p>
                         <p class="{{ $statusColor }} font-bold text-lg">{{ $order->status }}</p>
-                    </div>
-
+                    </div>  
+                    <div class="w-full md:w-1/2 text-center">
+                        <p class="text-gray-500 text-sm">Pengiriman:</p>
+                        <p class="{{ $statusShipped }} font-bold text-lg">{{ $shippedList }}</p>
+                    </div>  
                     {{-- Tombol Aksi --}}
                     <div class="w-full flex flex-col md:flex-row items-center justify-center md:justify-end gap-2">
                         <a href="{{ route('detailOrder', $order->id) }}" 

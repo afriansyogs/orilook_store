@@ -189,8 +189,28 @@
                     window.snap.pay(data.snap_token, {
                         onSuccess: function(result) {
                             alert('Pembayaran berhasil!');
-                            window.location.href = '/order'; // Redirect ke halaman sukses
+                            fetch('{{ route('updatePaymentStatus') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
                         },
+                        body: JSON.stringify({
+                            order_id: result.order_id,
+                            status: 'paid'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(response => {
+                        if (response.success) {
+                            alert('Status pembayaran diperbarui!');
+                            window.location.href = '/order';
+                        } else {
+                            alert('Gagal memperbarui status pembayaran.');
+                        }
+                    })
+                    .catch(err => alert('Error: ' + err.message));
+                },
                         onPending: function(result) {
                             alert('Menunggu pembayaran...');
                         },

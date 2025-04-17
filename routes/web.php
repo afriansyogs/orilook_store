@@ -61,8 +61,10 @@ Route::middleware(['auth', AuthMiddleware::class])->group(function () {
 });
 
 Route::post('/get-midtrans-token', [MasterController::class, 'checkout'])->name('checkout');
-Route::post('/midtrans/callback', [MasterController::class, 'handleMidtransCallback'])->name('midtrans.callback');
-Route::post('/get-snap-token', [MasterController::class, 'getSnapToken']);
+Route::post('/update-payment', [MasterController::class, 'updatePayment'])->name('updatePaymentStatus');
+// Route::post('/midtrans/notification', [MasterController::class, 'handleMidtransNotification']);
+// Route::get('/midtrans/check-payment/{order_code}', [MasterController::class, 'checkPaymentStatus']);
 
-Route::post('/bayar', [MasterController::class, 'bayar'])->name('bayar');
+Route::post('/midtrans/callback', [MasterController::class, 'handleMidtransCallback'])->name('midtrans.callback');
+
 // Route::post('/midtrans/callback', [MasterController::class, 'callback']);

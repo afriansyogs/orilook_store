@@ -21,8 +21,18 @@
             </div>
         </div>
         @php
-            $status = $orderDetail->status;
-            // warna class alert setiap status 
+            // $status = $orderDetail->status;
+
+            // $alertClass = match ($status) {
+            //     'pending' => 'alert-error',
+            //     'pesanan dibuat' => 'alert-warning', 
+            //     'pesanan diantar' => 'alert-info', 
+            //     'pesanan sampai' => 'alert-primary', 
+            //     'menunggu confirm user' => 'alert-secondary', 
+            //     'completed' => 'alert-success', 
+            //     default => 'alert-neutral',
+            // };
+            $status = ['pending', 'pesanan_dibuat', 'completed', 'cancel', 'request cancel', 'not_shipped', 'delivered', 'returned'];
             $alertClass = match ($status) {
                 'pending' => 'alert-error',
                 'pesanan dibuat' => 'alert-warning', 
@@ -155,18 +165,7 @@
                 <div class="mb-4">
                     <p class="text-gray-500">Payment Method</p>
                     <p class="font-semibold">{{$orderDetail->payment->payment_name}}</p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-gray-500">Bukti Transaksi</p>
-                    @if($orderDetail->payment->payment_name === 'Ambil Ditempat' && empty($orderDetail->payment_proof))
-                        <p class="text-black font-bold">Bayar di Tempat</p>
-                    @else
-                        <div class="w-full h-auto">
-                        <img src="{{ asset('storage/'.$orderDetail->payment_proof) }}" class="w-full object-cover" alt="bukti pembayaran">
-                        </div>
-                    @endif
-                </div>
-                    
+                </div>    
                 <button onclick="window.print()" class="btn btn-success w-full">Download Invoice</button>
             </div>
         </div>

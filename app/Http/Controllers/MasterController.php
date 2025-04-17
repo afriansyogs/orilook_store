@@ -396,17 +396,14 @@ class MasterController extends Controller
 
     DB::beginTransaction();
     try {
-      // Ambil ID cart yang dipilih
       $selectedCartIds = array_map('intval', array_keys($request->input('selectedCartIds', [])));
 
       if (empty($selectedCartIds)) {
         return response()->json(['error' => 'No cart items selected'], 400);
       }
 
-      // Ambil quantity per item
       $cartQuantities = array_map('intval', $request->input('cartQuantities', []));
 
-      // Ambil data keranjang
       $cartItems = Cart::where('user_id', $user->id)
         ->whereIn('id', $selectedCartIds)
         ->with(['product', 'sizeStock'])
@@ -418,16 +415,14 @@ class MasterController extends Controller
 
       $total = 0;
       $itemDetails = [];
-      $productData = []; // Untuk disimpan ke kolom products di database
+      $productData = []; 
 
-      // **Ambil ongkir**
       $shippingCost = 0;
       if ($request->city_id) {
         $city = City::find($request->city_id);
         $shippingCost = $city ? $city->shipping_price : 0;
       }
 
-      // **Ambil Voucher**
       $voucherDiscount = 0;
       $voucherId = null;
       $voucherName = $request->voucher_name;
@@ -448,15 +443,13 @@ class MasterController extends Controller
         $basePrice = $item->product->discounted_price * $qty;
         $total += $basePrice;
 
-        // **Tambahkan ke Midtrans**
         $itemDetails[] = [
           'id' => $item->product->id,
           'name' => $item->product->product_name ?? 'Unknown Product',
-          'price' => $item->product->discounted_price, // Harga per item
+          'price' => $item->product->discounted_price, 
           'quantity' => $qty
         ];
 
-        // **Simpan ke productData**
         $productData[] = [
           'product_id' => $item->product->id,
           'qty' => $qty,
@@ -464,7 +457,6 @@ class MasterController extends Controller
         ];
       }
 
-      // **Tambahkan biaya ongkir sebagai item terpisah**
       if ($shippingCost > 0) {
         $itemDetails[] = [
           'id' => 'SHIPPING',
@@ -475,27 +467,25 @@ class MasterController extends Controller
         $total += $shippingCost;
       }
 
-      // **Tambahkan voucher diskon sebagai item terpisah**
       if ($voucherDiscount > 0) {
         $itemDetails[] = [
           'id' => 'VOUCHER',
           'name' => 'Voucher Discount',
-          'price' => -$voucherDiscount, // Harga negatif untuk diskon
+          'price' => -$voucherDiscount, 
           'quantity' => 1
         ];
         $total -= $voucherDiscount;
       }
 
-      // Pastikan total tidak negatif
       $total = max(0, $total);
 
-      // **Buat Order ID**
-      $order_id = 'ORDER-' . time();
+      // **Buat Order Code**
+      $order_code = 'ORDER-' . time();
 
-      // **Siapkan data transaksi Midtrans**
+      // transaksi Midtrans**
       $transaction = [
         'transaction_details' => [
-          'order_id' => $order_id,
+          'order_id' => $order_code,
           'gross_amount' => $total
         ],
         'item_details' => $itemDetails,
@@ -509,11 +499,8 @@ class MasterController extends Controller
       ];
 
       Log::info('Transaction Data', $transaction);
-
-      // **Dapatkan Snap Token dari Midtrans**
       $snapToken = Snap::getSnapToken($transaction);
 
-      // **Simpan Order ke Database**
       $order = Order::create([
         'user_id' => $user->id,
         'product_id' => $item->product->id,
@@ -523,9 +510,8 @@ class MasterController extends Controller
         'city_id' => $request->city_id,
         'size_stock_product_id' => $sizeStock->id,
         'voucher_id' => $voucherId,
-        'order_code' => $order_id,
+        'order_code' => $order_code,
         'addres' => $request->addres,
-        'payment_proof' => null,
         'qty' => array_sum($cartQuantities),
         'total_amount' => $total,
         'status' => 'pending',
@@ -552,202 +538,53 @@ class MasterController extends Controller
     }
   }
 
+  // public function checkPaymentStatus($order_code)
+  // {
+  //   try {
+  //     $status = \Midtrans\Transaction::status($order_code);
+  //     $transactionStatus = $status->transaction_status; // Status dari Midtrans
 
-  public function getSnapToken(Request $request)
+  //     $order = Order::where('order_code', $order_code)->first();
+  //     if (!$order) {
+  //       return response()->json(['error' => 'Order not found'], 404);
+  //     }
+
+  //     // Cek status transaksi dari Midtrans dan update `payment_status`
+  //     if (in_array($transactionStatus, ['settlement', 'capture'])) {
+  //       $order->update([
+  //         'payment_status' => 'paid',
+  //         'status' => 'processed' // Jika ingin mengubah status pesanan juga
+  //       ]);
+  //     } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire', 'failure'])) {
+  //       $order->update([
+  //         'payment_status' => 'failed',
+  //         'status' => 'canceled'
+  //       ]);
+  //     }
+
+  //     return response()->json([
+  //       'message' => 'Order status updated',
+  //       'payment_status' => $order->payment_status
+  //     ]);
+  //   } catch (\Exception $e) {
+  //     Log::error("Check Payment Error: " . $e->getMessage());
+  //     return response()->json(['error' => 'Server error'], 500);
+  //   }
+  // }
+
+  public function updatePayment(Request $request)
   {
-      $params = [
-          'transaction_details' => [
-              'order_id' => uniqid(),
-              'gross_amount' => 10000,
-          ],
-          'customer_details' => [
-              'first_name' => 'Yoga',
-              'last_name' => 'Meleniawan',
-              'email' => 'yogameleniawan@example.com',
-              'phone' => '08111222333',
-          ],
-      ];
+    $order = Order::where('order_code', $request->order_id)->first();
 
-      try {
-          $snapToken = \Midtrans\Snap::getSnapToken($params);
-          return response()->json(['snap_token' => $snapToken]);
-      } catch (\Exception $e) {
-        Log::error('Midtrans Error: ' . $e->getMessage()); // Simpan log error
-          return response()->json(['error' => $e->getMessage()], 500);
-      }
-  }
-
-  public function handleMidtransCallback(Request $request)
-  {
-    Log::info('Midtrans callback received', ['data' => $request->all()]);
-
-    try {
-      // For direct callback from Midtrans server
-      if ($request->has('signature_key')) {
-        $serverKey = config('midtrans.server_key');
-        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
-
-        // Verify signature from Midtrans
-        if ($hashed != $request->signature_key) {
-          Log::warning('Invalid Midtrans signature', ['received' => $request->signature_key]);
-          return response()->json(['message' => 'Invalid signature'], 403);
-        }
-
-        $transactionStatus = $request->transaction_status;
-        $orderId = $request->order_id;
-      }
-      // For callback from frontend
-      else {
-        $transactionStatus = $request->status_code ?? $request->transaction_status;
-        $orderId = $request->order_id;
-      }
-
-      // Get order data from session
-      $user = auth()->user();
-      $selectedCartIds = session('selectedCartIds', []);
-      $cartQuantities = session('cartQuantities', []);
-      $city_id = session('city_id');
-      $voucher_id = session('voucher_id');
-      $address = session('address');
-
-      // Check if we have a valid transaction status
-      if (!in_array($transactionStatus, ['capture', 'settlement', 'pending'])) {
-        return response()->json(['message' => 'Status transaksi tidak valid: ' . $transactionStatus], 400);
-      }
-
-      // Process the payment
-      if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-        DB::beginTransaction();
-        try {
-          $cartItems = Cart::where('user_id', $user->id)
-            ->whereIn('id', $selectedCartIds)
-            ->get();
-
-          if ($cartItems->isEmpty()) {
-            Log::warning('No cart items found during callback', [
-              'user_id' => $user->id,
-              'selected_cart_ids' => $selectedCartIds
-            ]);
-            return response()->json(['message' => 'No cart items found'], 404);
-          }
-
-          foreach ($cartItems as $item) {
-            $qty = $cartQuantities[$item->id] ?? 1;
-            $totalAmount = $item->product->discounted_price ?
-              $item->product->discounted_price * $qty :
-              $item->product->price * $qty;
-
-            // Find size stock
-            $sizeStock = SizeStockProduct::where('product_id', $item->product->id)
-              ->where('size', optional($item->sizeStock)->size)
-              ->first();
-
-            if (!$sizeStock) {
-              // If size stock not found, use default one or log error
-              $sizeStock = SizeStockProduct::where('product_id', $item->product->id)
-                ->first();
-
-              if (!$sizeStock) {
-                Log::error('Size stock not found', [
-                  'product_id' => $item->product->id,
-                  'size' => optional($item->sizeStock)->size
-                ]);
-                continue; // Skip this item but continue with others
-              }
-            }
-
-            // Create order
-            Order::create([
-              'user_id' => $user->id,
-              'product_id' => $item->product->id,
-              'payment_id' => $request->payment_type ?? 1, // Default to 1 if not provided
-              'city_id' => $city_id,
-              'size_stock_product_id' => $sizeStock->id,
-              'voucher_id' => $voucher_id,
-              'addres' => $address,
-              'qty' => $qty,
-              'total_amount' => $totalAmount,
-              'status' => 'paid',
-              'order_id' => $orderId
-            ]);
-
-            // Update inventory
-            $sizeStock->decrement('stock', $qty);
-          }
-
-          // Delete items from cart
-          Cart::where('user_id', $user->id)
-            ->whereIn('id', $selectedCartIds)
-            ->delete();
-
-          DB::commit();
-
-          // Clear session data
-          session()->forget(['order_id', 'selectedCartIds', 'cartQuantities', 'city_id', 'voucher_id', 'address']);
-
-          return response()->json(['message' => 'Order berhasil disimpan']);
-        } catch (\Exception $e) {
-          DB::rollBack();
-          Log::error('Error saving order: ' . $e->getMessage(), ['exception' => $e]);
-          return response()->json(['message' => 'Terjadi kesalahan saat menyimpan order: ' . $e->getMessage()], 500);
-        }
-      } else if ($transactionStatus == 'pending') {
-        // Handle pending payment
-        return response()->json(['message' => 'Payment pending. Please complete your payment.']);
-      } else {
-        // Handle other transaction statuses
-        return response()->json(['message' => 'Status transaksi: ' . $transactionStatus], 200);
-      }
-    } catch (\Exception $e) {
-      Log::error('Callback error: ' . $e->getMessage(), ['exception' => $e]);
-      return response()->json(['message' => 'Error processing callback: ' . $e->getMessage()], 500);
+    if (!$order) {
+        return response()->json(['success' => false, 'message' => 'Order tidak ditemukan'], 404);
     }
-  }
 
-  public function bayar(Request $request)
-{
-    $params = [
-        'transaction_details' => [
-            'order_id' => "ORDER-" . time(),
-            'gross_amount' => 100000,
-        ],
-        'customer_details' => [
-            'first_name' => 'Ayt',
-            'email' => 'ayt@example.com',
-        ]
-    ];
+    $order->payment_status = $request->status;
+    $order->save();
 
-    try {
-        $snapToken = Snap::getSnapToken($params);
-        return response()->json([
-            'snap_token' => $snapToken,
-            'order_id' => $params['transaction_details']['order_id']
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-}
-
-  public function callback(Request $request)
-  {
-      $serverKey = config('services.server_key');
-      $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
-
-      if ($hashed == $request->signature_key) {
-          if ($request->transaction_status == 'settlement') {
-              // Simpan order ke database
-              Order::create([
-                  'user_id' => Auth::id(),
-                  'order_id' => $request->order_id,
-                  'total_price' => $request->gross_amount,
-                  'payment_status' => 'Paid',
-              ]);
-
-              // Kosongkan keranjang belanja setelah pembayaran sukses
-              Cart::where('user_id', Auth::id())->delete();
-          }
-      }
-  }
+    return response()->json(['success' => true, 'message' => 'Status pembayaran diperbarui']);
+  } 
 
   // orderPage
   public function orderPage()
