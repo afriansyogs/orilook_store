@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class MasterController extends Controller
@@ -602,6 +603,20 @@ class MasterController extends Controller
     $orderDetail = Order::with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->findOrFail($id);
     return view('pages.detailOrder', compact('orderDetail'));
   }
+
+  public function generatePdf($id) {
+    $order = Order::with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->findOrFail($id);
+
+    // Periksa jika order tidak ditemukan
+    // if (!$order) {
+    //     abort(404, 'Order not found');
+    // }
+
+    $pdf = Pdf::loadView('pages.invoice_view', compact('order'));
+    return $pdf->download('invoice-' . $order->id . '.pdf');
+  }
+
+
 
   public function updateStatusCompleted($id)
   {

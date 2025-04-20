@@ -53,6 +53,7 @@ Route::middleware(['auth', AuthMiddleware::class])->group(function () {
     // order 
     Route::get('/order', [MasterController::class, 'orderPage'])->name('orderPage');
     Route::get('/order/detailOrder/{id}', [MasterController::class, 'detailOrder'])->name('detailOrder');
+    Route::get('/generate-pdf/{id}', [MasterController::class, 'generatePdf'])->name('generatePdf');
     Route::put('/updateStatus/{id}', [MasterController::class, 'updateStatusCompleted'])->name('updateStatusCompleted');
     
     // review 

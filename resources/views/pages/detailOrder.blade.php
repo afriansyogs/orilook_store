@@ -120,7 +120,24 @@
                         </div>
                     </div>
                 @endif
-                
+                @if ($orderDetail->status === 'menunggu confirm user')
+                    <form action="{{ route('updateStatusCompleted', $orderDetail->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="mt-10 px-4 py-3 w-full bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            Selesaikan Pesanan
+                        </button>
+                    </form>
+                @endif
+
+            </div>
+
+            <div class="bg-base-100 p-6 rounded-lg shadow">
+                <h3 class="text-xl font-extrabold mb-4 text-center">Payment</h3>
+                <div class="">
+                    <p class="text-gray-500">Shipping Method</p>
+                    <p class="font-semibold">{{$orderDetail->payment->payment_name}}</p>
+                </div>    
                 <div class="bg-gray-100 p-4 rounded-lg mt-5">
                     <h4 class="text-lg font-semibold mb-4">Total</h4>
                     <div class="grid gap-2 text-sm md:text-base">
@@ -143,30 +160,13 @@
                             </div>
                         @endif
                         <div class="border-t border-gray-300 mt-2 pt-2 flex justify-between">
-                            <h1 class="font-extrabold text-lg md:text-xl">Subtotal</h1>
-                            <h1 class="font-extrabold text-lg md:text-xl text-black-600">Rp {{ number_format($orderDetail->total_amount, 0, ',', '.') }}</h1>
+                            <h1 class="font-bold text-lg md:text-xl">Subtotal</h1>
+                            <h1 class="font-bold text-lg md:text-xl text-black-600">Rp {{ number_format($orderDetail->total_amount, 0, ',', '.') }}</h1>
                         </div>
                     </div>
                 </div>
-                @if ($orderDetail->status === 'menunggu confirm user')
-                    <form action="{{ route('updateStatusCompleted', $orderDetail->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="mt-10 px-4 py-3 w-full bg-blue-500 text-white rounded hover:bg-blue-600 transition">
-                            Selesaikan Pesanan
-                        </button>
-                    </form>
-                @endif
-
-            </div>
-
-            <div class="bg-base-100 p-6 rounded-lg shadow">
-                <h3 class="text-xl font-extrabold mb-4 text-center">Payment</h3>
-                <div class="mb-4">
-                    <p class="text-gray-500">Payment Method</p>
-                    <p class="font-semibold">{{$orderDetail->payment->payment_name}}</p>
-                </div>    
-                <button onclick="window.print()" class="btn btn-success w-full">Download Invoice</button>
+                <a href="{{ route('generatePdf', ['id' => $orderDetail->id]) }}" class="btn btn-success w-full mt-3">Download Invoice</a>
+                {{-- <button onclick="window.print()" class="btn btn-success w-full mt-3">Download Invoice</button> --}}
             </div>
         </div>
     </div>
