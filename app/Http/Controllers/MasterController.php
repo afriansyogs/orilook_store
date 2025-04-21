@@ -593,6 +593,10 @@ class MasterController extends Controller
     $users = Auth::user();
     if ($users) {
       $orderItem = Order::where('user_id', $users->id)->with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->latest()->get();
+
+      foreach ($orderItem as $order) {
+        $order->decoded_items = json_decode($order->order_item, true);
+      }
       return view('pages.order', compact('orderItem'));
     }
     return redirect()->route('/');
@@ -604,17 +608,46 @@ class MasterController extends Controller
     return view('pages.detailOrder', compact('orderDetail'));
   }
 
-  public function generatePdf($id) {
+  public function generatePdf($id)
+{
+    // Ambil order beserta relasi yang dibutuhkan menggunakan eager loading
     $order = Order::with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->findOrFail($id);
 
-    // Periksa jika order tidak ditemukan
-    // if (!$order) {
-    //     abort(404, 'Order not found');
-    // }
+    // Decode order_item dan pastikan format JSON valid
+    $decodedItems = json_decode($order->order_item, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        // Menangani kesalahan decode jika JSON tidak valid
+        $decodedItems = [];
+    }
 
-    $pdf = Pdf::loadView('pages.invoice_view', compact('order'));
+    // Ambil produk yang relevan berdasarkan product_id
+    $productIds = collect($decodedItems)->pluck('product_id')->unique();
+    $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+    $sizeStockIds = collect($decodedItems)->pluck('size_stock_product_id')->unique();
+    $sizeStock = SizeStockProduct::whereIn('id', $sizeStockIds)->get()->keyBy('id');
+
+    // Menambahkan nama produk dan harga ke setiap item dalam decodedItems
+    $decodedItems = collect($decodedItems)->map(function ($item) use ($products, $sizeStock) {
+        $product = $products->get($item['product_id']);
+        $size = $sizeStock->get($item['size_stock_product_id']);
+        $item['product_name'] = $product ? $product->product_name : 'Produk tidak ditemukan';
+        $item['price'] = $product ? $product->price : 0;
+        $item['size'] = $size ? $size->size : '-';
+        return $item;
+    })->toArray();
+
+    // Generate PDF menggunakan data yang telah diproses
+    $pdf = Pdf::loadView('pages.invoice_view', [
+        'order' => $order,
+        'decodedItems' => $decodedItems
+    ]);
+
     return $pdf->download('invoice-' . $order->id . '.pdf');
-  }
+}
+
+
 
 
 

@@ -59,12 +59,14 @@
       </tr>
     </thead>
     <tbody>
+      @foreach ($decodedItems  as $item)    
       <tr style="border-top: 1px solid #e5e7eb;">
-        <td style="padding: 8px;">{{ $order->product->product_name }}</td>
-        <td style="text-align: center; padding: 8px;">{{ $order->sizeStock->size }}</td>
-        <td style="text-align: center; padding: 8px;">{{ $order->qty }}</td>
-        <td style="text-align: right; padding: 8px;">Rp{{ number_format($order->product->price, 0, ',', '.') }}</td>
+        <td style="padding: 8px; text-align: left">{{ $item['product_name'] ?? '-' }}</td>
+        <td style="padding: 8px; text-align: center">{{ $item['size'] ?? '-' }}</td>
+        <td style="padding: 8px; text-align: center">{{ $item['qty'] }}</td>
+        <td style="padding: 8px; text-align: right">Rp{{ number_format($item['price'], 0, ',', '.') }}</td>
       </tr>
+        @endforeach
     </tbody>
   </table>
 
@@ -81,6 +83,10 @@
       <div style="display: flex; justify-content: space-between; padding: 4px 0;">
         <span style="color: #4b5563;">Ongkir</span>
         <span>Rp{{ number_format($order->city->shipping_price ?? 0, 0, ',', '.') }}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+        <span style="color: #4b5563;">Voucher</span>
+        <span style="color: #c60101;">- Rp{{ number_format($order->voucher->discount_voucher ?? 0, 0, ',', '.') }}</span>
       </div>
       <div
         style="display: flex; justify-content: space-between; padding: 8px 0 0 0; margin-top: 8px; border-top: 1px solid #e5e7eb; font-weight: bold;">

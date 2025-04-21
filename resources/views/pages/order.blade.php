@@ -4,6 +4,20 @@
     <h1 class="text-2xl font-bold mb-6 text-center">Order History</h1>
     @if ($orderItem->count() > 0)
         <div class="space-y-4">
+            {{-- @foreach ($orderItem as $order)
+                <div class="border rounded p-4 mb-4">
+                    <h4 class="font-bold">Order ID: {{ $order->id }}</h4>
+
+                    @foreach ($order->decoded_items as $item)
+                        <div class="pl-4 mt-2 border-l-2 border-gray-300">
+                            <p>Product ID: {{ $item['product_id'] }}</p>
+                            <p>Quantity: {{ $item['qty'] }}</p>
+                            <p>Size Stock Product ID: {{ $item['size_stock_product_id'] }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach --}}
+
             @foreach ($orderItem as $order)
                 <div class="bg-white p-4 md:p-6 rounded-lg shadow-md w-full flex flex-col md:flex-row md:items-center gap-4 md:gap-6" data-aos="fade-up" data-aos-duration="600"> 
                     {{-- Bagian Gambar --}}
@@ -60,7 +74,7 @@
                     <div class="w-full flex flex-col md:flex-row items-center justify-center md:justify-end gap-2">
                         <a href="{{ route('detailOrder', $order->id) }}" 
                             class="w-full md:w-auto border border-black bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded text-center">
-                            Show Invoice
+                            Show Detail
                         </a>
                         @if ($order->status === 'pending')
                             <form action="{{ route('updateStatusCompleted', $order->id) }}" method="POST" class="w-full md:w-auto">

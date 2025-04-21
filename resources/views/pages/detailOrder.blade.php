@@ -129,7 +129,6 @@
                         </button>
                     </form>
                 @endif
-
             </div>
 
             <div class="bg-base-100 p-6 rounded-lg shadow">
@@ -165,7 +164,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('generatePdf', ['id' => $orderDetail->id]) }}" class="btn btn-success w-full mt-3">Download Invoice</a>
+                <a href="{{ route('generatePdf', ['id' => $orderDetail->id]) }}" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full mt-3">Download Invoice</a>
                 {{-- <button onclick="window.print()" class="btn btn-success w-full mt-3">Download Invoice</button> --}}
             </div>
         </div>
