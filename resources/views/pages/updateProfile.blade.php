@@ -31,14 +31,14 @@
             <div class="w-full lg:w-1/2 space-y-4">
                 <!-- Nomor Telepon -->
                 <div class="form-control">
-                    <label class="label font-bold">Phone Number</label>
+                    <label class="label font-bold">Nomor Telp</label>
                     <input type="text" name="no_hp" value="{{ old('no_hp', $user->no_hp) }}" class="input input-bordered w-full" required>
                     @error('no_hp') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Foto Profil -->
                 <div class="form-control">
-                    <label class="label font-bold">Profile Picture</label>
+                    <label class="label font-bold">Foto Profile</label>
                     <input type="file" name="user_img" class="file-input file-input-bordered w-full" accept="image/*">
                     @error('user_img') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
@@ -47,14 +47,14 @@
 
         <!-- addres -->
         <div class="form-control">
-            <label class="label font-bold">addres</label>
+            <label class="label font-bold">Alamat</label>
             <textarea name="addres" class="textarea textarea-bordered w-full lg:h-52" required>{{ old('addres', $user->addres) }}</textarea>
             @error('addres') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
         </div>
 
         <!-- Submit -->
         <div class="form-control mt-4">
-            <button type="submit" class="btn btn-primary w-full">Update Profile</button>
+            <button type="submit" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full">Update Profile</button>
         </div>
     </form>
 </div>

@@ -33,105 +33,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class MasterController extends Controller
 {
-
-  // register 
-  public function registerPage()
-  {
-    return view('pages.register');
-  }
-
-  public function registerProcess(Request $request)
-  {
-    $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|string|email|max:255|unique:users',
-      'password' => 'required|string|min:8|confirmed',
-    ], [
-      'password.confirmed' => 'Confirm password does not match',
-    ]);
-
-    User::create([
-      'name' => $request->name,
-      'email' => $request->email,
-      'password' => Hash::make($request->password),
-      'role' => 'user',
-    ]);
-
-    $login = [
-      'name' => $request->name,
-      'password' => $request->password,
-    ];
-
-    if (Auth::attempt($login)) {
-      return redirect()->route('formUpdateDataUser')->with('success', 'Acount Berhasil Dibuat Lengkapi Data Anda.');
-    } else {
-      return redirect()->route('registerPage')->with('failed', 'Incorrect Username, Email or Password');
-    }
-  }
-
-  // login 
-  public function loginPage()
-  {
-    return view('pages.login');
-  }
-
-  public function loginProcess(Request $request)
-  {
-    $request->validate([
-      'email' => 'required|email',
-      'password' => 'required',
-    ]);
-
-    $credentials = $request->only('email', 'password');
-    $remember = $request->has('remember');
-
-    if (Auth::attempt($credentials, $remember)) { // Gunakan remember token
-      $user = Auth::user();
-      if ($user->role !== 'user') {
-        Auth::logout();
-        return redirect()->route('loginPage')->withErrors(['email' => 'Unauthorized access.']);
-      }
-      return redirect()->route('home');
-    }
-    return back()->withErrors(['email' => 'Invalid credentials.']);
-  }
-
-  // logout 
-  public function logout()
-  {
-    Auth::logout();
-    return redirect()->route('loginPage')->with('success', 'You have Successfully Logout');
-  }
-
-  // updateDataUser 
-  public function formUpdateDataUser()
-  {
-    $user = Auth::user()->id;
-    if ($user) {
-      return view('pages.formInputDataUser');
-    }
-    return redirect()->route('loginPage');
-  }
-
-  public function updateDataUserProcess(Request $request)
-  {
-    $request->validate([
-      'no_hp' => 'required|string|max:15',
-      'addres' => 'required|string',
-    ]);
-
-    $user = Auth::user();
-    $user->update([
-      'no_hp' => $request->no_hp,
-      'addres' => $request->addres,
-    ]);
-
-    return redirect()->route('home')->with('success', 'Data Berhasil Disimpan!');
-  }
-
   // homePage 
-  public function homePage(Request $request)
-  {
+  public function homePage(Request $request) {
     $products = $this->getProduct();
     $brands = $this->getBrand();
     $categories = $this->getCategory();
@@ -140,97 +43,33 @@ class MasterController extends Controller
     return view('pages.home', compact('products', 'review', 'categories', 'brands'));
   }
 
-  private function getProduct()
-  {
-    return Product::orderBy('created_at', 'desc')->limit(4)->get();
+  private function getProduct() {
+    return Product::with(['category', 'brand'])->orderBy('created_at', 'desc')->limit(4)->get();
   }
 
-  private function getCategory()
-  {
+  private function getCategory() {
     return Category::all();
   }
-  private function getBrand()
-  {
+  private function getBrand() {
     return Brand::all();
   }
 
-  private function getReview()
-  {
-    return Review::orderBy('created_at', 'desc')->limit(3)->get();
+  private function getReview() {
+    return Review::with(['user', 'order'])->orderBy('created_at', 'desc')->limit(3)->get();
   }
 
   // aboutPage 
-  public function aboutPage()
-  {
+  public function aboutPage() {
     return view('pages.about');
   }
 
   // contactPage 
-  public function contactPage()
-  {
+  public function contactPage() {
     return view('pages.contact');
   }
 
-  // profile 
-  public function profilePage()
-  {
-    $userDetail = Auth::user();
-    if ($userDetail) {
-      return view('pages.profile', compact('userDetail'));
-    }
-  }
-
-  public function updateProfilePage()
-  {
-    $user = Auth::user();
-    if ($user) {
-      return view('pages.updateProfile', compact('user'));
-    }
-    return redirect()->route('loginPage');
-  }
-
-  public function updateProfile(Request $request)
-  {
-    $user = Auth::user();
-
-    $request->validate([
-      'name' => 'required|string|max:255',
-      'no_hp' => 'required|numeric',
-      'addres' => 'required|string',
-      'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-      'user_img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-    ], [
-      'no_hp.numeric' => 'No Telp harus berupa angka',
-    ]);
-
-    $userData = [
-      'name' => $request->name,
-      'no_hp' => $request->no_hp,
-      'addres' => $request->addres,
-      'email' => $request->email,
-    ];
-
-    // delete foto lama 
-    if ($request->hasFile('user_img')) {
-      if ($user->user_img) {
-        Storage::disk('public')->delete('profile/' . $user->user_img);
-      }
-
-      // hash & Upload foto baru
-      $fileName = time() . '.' . $request->file('user_img')->extension();
-      $request->file('user_img')->storeAs('profile', $fileName, 'public');
-
-      $userData['user_img'] = $fileName;
-    }
-
-    $user->update($userData);
-
-    return redirect()->route('profilePage')->with('success', 'Profile berhasil diupdate.');
-  }
-
   // productPage 
-  public function productPage(Request $request)
-  {
+  public function productPage(Request $request) {
     $search = $request->input('search');
     $category_id = $request->input('category');
     $brand_id = $request->input('brand');
@@ -261,98 +100,31 @@ class MasterController extends Controller
     $query->orderBy('product_name', $sortOrder);
     $products = $query->paginate(8);
 
-    // Ambil semua kategori dan brand untuk dropdown filter
-    $categories = Category::all();
-    $brands = Brand::all();
+    // dropdown filter data
+    $categories = Category::select('id', 'category_name')->get();
+    $brands = Brand::select('id', 'brand_name')->get();
 
     return view('pages.product', compact('products', 'categories', 'brands'));
   }
 
-  public function detailProduct($id): View
-  {
+  public function detailProduct($id): View {
     $productDetail = Product::with('sizeStock')->findOrFail($id);
     return view('pages.detailProduct', compact('productDetail'));
   }
 
-  // cart 
-  public function cartPage()
-  {
-    $user = Auth::user();
-    if ($user) {
-      $cartItems = Cart::with(['sizeStock', 'product'])
-        ->where('user_id', $user->id)
-        ->get();
-
-      foreach ($cartItems as $item) {
-        if ($item->sizeStock->stock <= 0) {
-          $item->delete();
-        }
-      }
-
-      // Ambil ulang item setelah penghapusan
-      $cartItems = Cart::with(['sizeStock', 'product'])
-        ->where('user_id', $user->id)
-        ->get();
-
-      return view('pages.cart', compact('cartItems'));
-    }
-
-    return redirect()->route('home');
-  }
-
-  public function addToCart(Request $request)
-  {
-    $userId = Auth::id();
-    $productId = $request->input('product_id');
-    $sizeStockProductId = $request->input('size_stock_product_id');
-
-    if (empty($sizeStockProductId)) {
-      return redirect()->back()->with('error', 'Silakan pilih ukuran sebelum menambahkan ke keranjang.');
-    }
-
-    $existingCart = Cart::where('user_id', $userId)
-      ->where('product_id', $productId)
-      ->where('size_stock_product_id', $sizeStockProductId)
-      ->first();
-
-    if ($existingCart) {
-      return redirect()->back()->with('error', 'Produk sudah ada di keranjang Anda.');
-    }
-
-    $product = Product::findOrFail($productId);
-
-    Cart::create([
-      'user_id' => $userId,
-      'product_id' => $productId,
-      'size_stock_product_id' => $sizeStockProductId,
-      'qty' => $request->input('qty', 1),
-      'total_price' => $product->discounted_price * $request->input('qty', 1),
-    ]);
-
-    return redirect()->route('cartPage')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
-  }
-
-  public function deleteItemCart($id)
-  {
-    Cart::destroy($id);
-    return redirect()->route('cartPage');
-  }
-
   // formCheckout 
-  public function formCheckout(Request $request)
-  {
+  public function formCheckout(Request $request) {
     $user = auth::user();
     $selectedCartIds = json_decode($request->input('selected_cart_ids', '[]'), true);
     // dd($selectedCartIds);
 
-    // Ambil hanya item yang dichecklist
     $cartItems = Cart::where('user_id', $user->id)
       ->whereIn('id', $selectedCartIds)
       ->get();
     // Ambil qty dari localStorage
     $cartQuantities = json_decode($request->input('cart_quantities', '{}'), true);
 
-    // Update total berdasarkan qty dari localStorage
+    // Update total
     $total = 0;
     foreach ($cartItems as $item) {
       $qty = $cartQuantities[$item->id] ?? 1;
@@ -364,14 +136,12 @@ class MasterController extends Controller
     return view('pages.formChekout', compact('user', 'payments', 'cartItems', 'cartQuantities', 'total', 'provinces'));
   }
 
-  public function getCities($province_id)
-  {
+  public function getCities($province_id) {
     $cities = City::where('province_id', $province_id)->get(['id', 'city_name', 'shipping_price']);
     return response()->json($cities);
   }
 
-  public function checkVoucher(Request $request)
-  {
+  public function checkVoucher(Request $request) {
     $voucherName = $request->input('voucher_name');
     $voucher = Voucher::where('voucher_name', $voucherName)->first();
 
@@ -390,8 +160,7 @@ class MasterController extends Controller
   }
 
   // payment 
-  public function checkout(Request $request)
-  {
+  public function checkout(Request $request) {
     $user = Auth::user();
     Log::info('Checkout attempt by user', ['user_id' => $user->id, 'request_data' => $request->all()]);
 
@@ -588,40 +357,64 @@ class MasterController extends Controller
   } 
 
   // orderPage
-  public function orderPage()
-  {
-    $users = Auth::user();
-    if ($users) {
-      $orderItem = Order::where('user_id', $users->id)->with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->latest()->get();
+  // public function orderPage()
+  // {
+  //   $users = Auth::user();
+  //   if ($users) {
+  //     $orderItem = Order::where('user_id', $users->id)
+  //                         ->with([
+  //                             'user',
+  //                             'product',
+  //                             'payment',
+  //                             'city',
+  //                             'sizeStock',
+  //                             'voucher'
+  //                             ])
+  //                         ->latest()
+  //                         ->get();
 
-      foreach ($orderItem as $order) {
-        $order->decoded_items = json_decode($order->order_item, true);
-      }
-      return view('pages.order', compact('orderItem'));
+  //     foreach ($orderItem as $order) {
+  //       $order->decoded_items = json_decode($order->order_item, true);
+  //       foreach ($order->decoded_items as &$item) {
+  //         // Temukan produk berdasarkan product_id
+  //         $product = Product::find($item['product_id']);
+  //         $item['product_name'] = $product ? $product->product_name : 'Unknown';
+  //         $item['product_img'] = $product ? $product->product_img : 'Unknown';
+  //         $item['discounted_price'] = $product ? $product->discounted_price : 'Unknown';
+  //       }
+  //     }
+  //     return view('pages.order', compact('orderItem'));
+  //   }
+  //   return redirect()->route('/');
+  // }
+
+  public function orderPage() {
+    $user = Auth::user();
+    if ($user) {
+        $orders = Order::where('user_id', $user->id)->latest()->get();
+        return view('pages.order', compact('orders'));
     }
+
     return redirect()->route('/');
+}
+
+
+  public function detailOrder($id): View {
+    $orderDetail = Order::with(['user', 'payment', 'city', 'voucher'])->findOrFail($id);
+    $orderItems = collect($orderDetail->getOrderItemsWithDetails());
+    return view('pages.detailOrder', compact('orderDetail', 'orderItems'));
   }
 
-  public function detailOrder($id): View
-  {
-    $orderDetail = Order::with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->findOrFail($id);
-    return view('pages.detailOrder', compact('orderDetail'));
-  }
-
-  public function generatePdf($id)
-{
-    // Ambil order beserta relasi yang dibutuhkan menggunakan eager loading
+  public function generatePdf($id) {
     $order = Order::with(['user', 'product', 'payment', 'city', 'sizeStock', 'voucher'])->findOrFail($id);
 
-    // Decode order_item dan pastikan format JSON valid
     $decodedItems = json_decode($order->order_item, true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {
-        // Menangani kesalahan decode jika JSON tidak valid
         $decodedItems = [];
     }
 
-    // Ambil produk yang relevan berdasarkan product_id
+    // take item by prodcut_id 
     $productIds = collect($decodedItems)->pluck('product_id')->unique();
     $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
@@ -638,7 +431,7 @@ class MasterController extends Controller
         return $item;
     })->toArray();
 
-    // Generate PDF menggunakan data yang telah diproses
+    // Generate PDF
     $pdf = Pdf::loadView('pages.invoice_view', [
         'order' => $order,
         'decodedItems' => $decodedItems
@@ -646,10 +439,6 @@ class MasterController extends Controller
 
     return $pdf->download('invoice-' . $order->id . '.pdf');
 }
-
-
-
-
 
   public function updateStatusCompleted($id)
   {
@@ -772,7 +561,7 @@ class MasterController extends Controller
           'city_id' => $request->city_id ?? null,
           'size_stock_product_id' => $sizeStock->id,
           'voucher_id' => $voucherId,
-          'addres' => $request->addres, // 🔥 FIX: Menggunakan `address` yang benar
+          'addres' => $request->addres, 
           'payment_proof' => $buktiPembayaran,
           'qty' => $quantity,
           'total_amount' => $totalAmount,
@@ -816,19 +605,15 @@ class MasterController extends Controller
     }
   }
 
-
-
   // review 
-  public function reviewPage(Order $order)
-  {
+  public function reviewPage(Order $order) {
     if ($order->review) {
       return redirect()->back()->with('error', 'Anda sudah memberikan review untuk pesanan ini.');
     }
     return view('pages.review', compact('order'));
   }
 
-  public function addReview(Request $request, Order $order)
-  {
+  public function addReview(Request $request, Order $order) {
     $request->validate([
       'rating' => 'required|integer|min:1|max:5',
       'review' => 'required|string|max:500',

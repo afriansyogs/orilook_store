@@ -7,10 +7,10 @@
     <title>Laravel</title>
     @include('link')
 </head>
-<body style="background-color: #F5F5F5;">    
+<body style="background-color: #F5F5F5; min-height: 100vh;">    
 @include('components.navbar')
 <div class="container mx-auto px-4 pt-8 pb-28">
-    <h1 class="text-2xl font-bold mb-8 mt-12">Shopping Cart</h1>
+    <h1 class="text-center text-2xl font-bold mb-8 mt-14">Keranjang Belanja</h1>
 
     @if ($cartItems->count() > 0)
         <div class="grid grid-cols-1 gap-6 space-y-10">
@@ -95,7 +95,7 @@
             <div class="card-body text-center">
                 <h2 class="card-title justify-center text-2xl mb-4">Keranjang anda kosong</h2>
                 <p class="mb-4">Tambahkan product ke keranjang anda.</p>
-                <a href="{{ route('productPage') }}" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full">Lanjutakn belanja</a>
+                <a href="{{ route('productPage') }}" class="btn bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900 w-full">Lanjutakan belanja</a>
             </div>
         </div>
     @endif

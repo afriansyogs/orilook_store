@@ -12,26 +12,55 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id', // Jika masih ingin menyimpan 1 produk per order
+        'product_id',
         'size_stock_product_id',
         'voucher_id',
         'order_code', // ID unik pesanan
         'payment_id',
-        'payment_token', // Token Midtrans
-        'payment_status', // Status pembayaran
+        'payment_token', 
+        'payment_status', 
         'city_id',
         'addres',
         'qty',
         'total_amount',
-        'status', // Bisa untuk status umum (pending, completed, canceled)
-        'shipping_status', // Status pengiriman
-        'tracking_number', // Nomor resi
-        'order_item', // Detail produk dalam format JSON
+        'status', 
+        'shipping_status', 
+        'tracking_number', 
+        'order_item', 
     ];
 
     protected $casts = [
-        'order_item' => 'array', // Supaya otomatis didecode jadi array
+        'order_item' => 'array',
     ];
+
+    public function getOrderItemsWithDetails()
+    {
+        $orderItems = json_decode($this->order_item, true);
+        
+        if (empty($orderItems)) {
+            return collect([]);
+        }
+        
+        // Ekstrak semua product_id dan size_stock_product_id
+        $productIds = collect($orderItems)->pluck('product_id')->unique()->toArray();
+        $sizeStockIds = collect($orderItems)->pluck('size_stock_product_id')->unique()->toArray();
+        
+        // Load semua data sekali saja (eager loading)
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $sizeStocks = SizeStockProduct::whereIn('id', $sizeStockIds)->get()->keyBy('id');
+        
+        // Map order items dengan data yang sudah di-load
+        return collect($orderItems)->map(function($item) use ($products, $sizeStocks) {
+            $productId = $item['product_id'];
+            $sizeStockId = $item['size_stock_product_id'];
+            
+            return [
+                'product' => $products->get($productId),
+                'size_stock' => $sizeStocks->get($sizeStockId),
+                'qty' => $item['qty']
+            ];
+        });
+    }
 
     public function user() {
         return $this->belongsTo(User::class);

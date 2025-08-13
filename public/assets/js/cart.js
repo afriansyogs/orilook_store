@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const grandTotalElement = document.getElementById("grand-total");
     const cartItemsContainer = document.getElementById("cart-items");
 
-    // Format rupiah
     function number_format(number) {
         return new Intl.NumberFormat("id-ID").format(number);
     }
@@ -20,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Check if cart is empty
     function isCartEmpty() {
         return !cartItemsContainer || cartItemsContainer.children.length === 0;
     }
@@ -44,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         checkbox.addEventListener("change", updateGrandTotal);
     });
 
-    // Handle quantity updates
     function updateQuantity(button) {
         const itemId = button.dataset.id;
         const action = button.dataset.action;
@@ -74,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         quantityElement.dataset.qty = quantity;
         quantityElement.textContent = quantity;
 
-        // Update item total price
+        // Update total price
         updateItemTotal(itemId, quantity, price);
 
         // Update localStorage

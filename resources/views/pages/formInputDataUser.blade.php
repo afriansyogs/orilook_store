@@ -8,7 +8,7 @@
     @include('link')
 </head>
 <body class="flex items-center justify-center min-h-screen bg-gradient-to-b from-red-600 to-gray-100 p-4">
-    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl transform transition-all hover:scale-[1.02]">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl transform transition-all ">
         <div class="flex justify-center mb-6">
             <div class="bg-red-500 text-white p-4 rounded-full shadow-lg">
                 <i class="fas fa-user-edit text-3xl"></i>
@@ -33,7 +33,7 @@
             </div>
 
             <div class="mb-4">
-                <label for="addres" class="block text-sm font-semibold text-gray-700">addres</label>
+                <label for="addres" class="block text-sm font-semibold text-gray-700">Alamat</label>
                 <textarea name="addres" id="addres" rows="3"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none transition @error('addres') border-red-500 @enderror"
                     placeholder="Masukkan addres lengkap">{{ old('addres') }}</textarea>

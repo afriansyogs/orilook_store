@@ -14,9 +14,9 @@
           </div>
           <img  id="mainImage" src="{{ asset('storage/' . $productDetail->product_img[0]) }}" alt="{{ $productDetail->product_name }}" class="w-full h-full object-cover rounded-lg mt-2">
         </div>
-      <div class="flex mt-[4rem] space-x-2 overflow-x-auto">
+      <div class="flex mt-[4rem] py-2 space-x-2 overflow-x-auto">
         @foreach ($productDetail->product_img as $image)
-          <img src="{{ asset('storage/' . $image) }}" alt="{{ $productDetail->product_name }}" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-2 hover:ring-black" onclick="changeImage(this.src)"/>
+          <img src="{{ asset('storage/' . $image) }}" alt="{{ $productDetail->product_name }}" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-1 hover:ring-black" onclick="changeImage(this.src)"/>
         @endforeach
       </div>
     </div>
@@ -72,10 +72,10 @@
   // selectVAriant 
   function selectVariant(button, sizeStockId) {
   document.querySelectorAll('.size-btn').forEach(btn => {
-      btn.classList.remove('btn-primary');
+      btn.classList.remove('btn-neutral');
       btn.classList.add('btn-outline');
   });
-  button.classList.add('btn-primary');
+  button.classList.add('btn-neutral');
   button.classList.remove('btn-outline');
 
   // Simpan ID size

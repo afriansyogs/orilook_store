@@ -3,7 +3,7 @@
 @section('content')
 <body class="bg-base-200 ">
     <div class="w-full mx-auto bg-base-100 p-6 rounded-lg shadow-lg mt-12">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-6 mt-8">
             <div class="steps w-full">
                 @php
                     // Daftar status
@@ -14,7 +14,7 @@
                 @endphp
         
                 @foreach ($statuses as $index => $status)
-                    <div class="step {{ $index <= $currentStatusIndex ? 'step-primary' : 'step-neutral' }}">
+                    <div class="step {{ $index <= $currentStatusIndex ? 'step-success' : 'step-neutral' }}">
                         {{ ucfirst($status) }}
                     </div>
                 @endforeach
@@ -71,38 +71,58 @@
 
                 <div class="bg-gray-100 p-4 rounded-lg">
                     <h4 class="text-lg font-semibold mb-2">Product Detail</h4>
-                    <div class="flex items-center space-x-4">
-                            <img src="{{ asset('storage/'.$orderDetail->product->product_img[0]) }}" class="w-full md:w-32 h-32 object-cover rounded-md" alt="{{ $orderDetail->product->product_name }}">
-                        <div>
-                            <p class="font-semibold">{{$orderDetail->product->product_name}}</p>
-                            <p class="text-gray-500">Size {{$orderDetail->sizeStock->size}}</p>
-                            <p class="text-gray-500">Rp {{ number_format($orderDetail->product->discounted_price, 2) }}</p>
-                            <p class="text-gray-500">{{$orderDetail->qty}} Barang</p>
-                            @php
-                                $totalProduct = $orderDetail->product->discounted_price * $orderDetail->qty;
-                            @endphp
-                            <p>Total Harga Product: Rp {{ number_format($totalProduct, 0, ',', '.') }}</p>
-                        </div>
+                    <div class="flex flex-col gap-6">
+                        @foreach ($orderItems as $item)
+                            <div class="flex items-center gap-4 p-4">
+                                <img src="{{ asset('storage/'.$item['product']->product_img[0]) }}" class="w-32 h-32 object-cover rounded-md" alt="{{ $item['product']->product_name }}">
+                                <div class="flex flex-col">
+                                    <p class="font-semibold">{{ $item['product']->product_name }}</p>
+                                    <p class="text-gray-500">Size {{ $item['size_stock']->size }}</p>
+                                    <p class="text-gray-500">Rp {{ number_format($item['product']->discounted_price, 2) }}</p>
+                                    <p class="text-gray-500">{{ $item['qty'] }} Barang</p>
+                                    @php
+                                        $totalProduct = ($item['product']->discounted_price ?? 0) * $item['qty'];
+                                    @endphp
+                                    <p class="font-semibold">Total Harga Product: Rp {{ number_format($totalProduct, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
                 
                 @if (!empty($orderDetail->city?->city_name))
                 <div class="bg-gray-100 p-4 rounded-lg mt-5">
-                    <h4 class="text-lg font-semibold mb-2">Ongkir</h4>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">addres:</p>
-                            <p class="text-gray-500">{{$orderDetail->addres}}</p>
-                            <p class="text-gray-500">Kota {{$orderDetail->city->city_name}}</p>
-                            <p class="text-gray-500">Provinsi {{$orderDetail->city->province->province_name}}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold">Rp {{ number_format($orderDetail->city->shipping_price,) }}</p>
-                        </div>
+                    <div>
+                        <p class="font-semibold">Alamat:</p>
+                        <p class="text-gray-500">{{$orderDetail->addres}}</p>
+                        <p class="text-gray-500">Kota {{$orderDetail->city->city_name}}</p>
+                        <p class="text-gray-500">Provinsi {{$orderDetail->city->province->province_name}}</p>
                     </div>
                 </div>
                 @endif
+            </div>
+
+            <div class="bg-base-100 p-6 rounded-lg shadow">
+                <h3 class="text-xl font-extrabold mb-4 text-center">Payment</h3>
+                <div class="">
+                    <p class="font-semibold">Metode Pengiriman</p>
+                    <p class="font-semibold text-gray-500">{{$orderDetail->payment->payment_name}}</p>
+                </div>
                 
+                
+                
+                @if (!empty($orderDetail->city?->city_name))
+                    <div class="bg-gray-100 p-4 rounded-lg mt-5">
+                        <div class="flex justify-between">
+                            <h4 class="text-lg font-semibold mb-2">Ongkir:</h4>
+                            <h4 class="font-semibold">
+                                Rp {{ number_format((float) ($orderDetail->voucher->discount_voucher ?? 0), 0, ',', '.') }}
+                            </h4>
+                        </div>
+                        
+                    </div>
+                @endif
+
                 @if (!empty($orderDetail->voucher?->voucher_name))
                     <div class="bg-gray-100 p-4 rounded-lg mt-5">
                         <h4 class="text-lg font-semibold mb-2">Voucher</h4>
@@ -129,14 +149,7 @@
                         </button>
                     </form>
                 @endif
-            </div>
 
-            <div class="bg-base-100 p-6 rounded-lg shadow">
-                <h3 class="text-xl font-extrabold mb-4 text-center">Payment</h3>
-                <div class="">
-                    <p class="text-gray-500">Shipping Method</p>
-                    <p class="font-semibold">{{$orderDetail->payment->payment_name}}</p>
-                </div>    
                 <div class="bg-gray-100 p-4 rounded-lg mt-5">
                     <h4 class="text-lg font-semibold mb-4">Total</h4>
                     <div class="grid gap-2 text-sm md:text-base">

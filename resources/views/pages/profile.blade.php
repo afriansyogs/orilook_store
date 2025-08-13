@@ -38,9 +38,15 @@
       </dl>
 
       {{-- Bagian Tombol --}}
-      <div class="mt-6 flex flex-col md:flex-row gap-4 w-full justify-center lg:justify-start">
-        <a href="{{route('updateProfilePage')}}" class="w-full md:w-auto text-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">Edit Profile</a>
-        <a href="{{route('logout')}}" class="w-full md:w-auto text-center bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition">Logout</a>
+      <div class="mt-6 flex flex-col md:flex-row gap-4 w-full justify-center lg:justify-end">
+        <a href="{{route('updateProfilePage')}}" class="w-full md:w-auto text-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
+          <i class="fa-solid fa-user-pen me-1"></i>
+          Edit Profile
+        </a>
+        <a href="{{route('logout')}}" class="w-full md:w-auto text-center bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition">
+          <i class="fa-solid fa-right-from-bracket me-1"></i>
+          Logout
+        </a>
       </div>
     </div>
 

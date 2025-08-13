@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AuthMiddleware;
 
@@ -18,29 +21,29 @@ Route::get('/about', [MasterController::class, 'aboutPage'])->name('aboutPage');
 Route::get('/contact', [MasterController::class, 'contactPage'])->name('contactPage');
 
 // register
-Route::get('/register', [MasterController::class, 'registerPage'])->name('registerPage');
-Route::post('/register', [MasterController::class, 'registerProcess'])->name('registerProcess');
+Route::get('/register', [AuthController::class, 'registerPage'])->name('registerPage');
+Route::post('/register', [AuthController::class, 'registerProcess'])->name('registerProcess');
 
 // login logout 
-Route::get('/login', [MasterController::class, 'loginPage'])->name('loginPage');
-Route::post('/login', [MasterController::class, 'loginProcess'])->name('loginProcess');
-Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
+Route::get('/login', [AuthController::class, 'loginPage'])->name('loginPage');
+Route::post('/login', [AuthController::class, 'loginProcess'])->name('loginProcess');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // with middleware 
 Route::middleware(['auth', AuthMiddleware::class])->group(function () {
     // updateDataUser 
-    Route::get('/formUpdateDataUser', [MasterController::class, 'formUpdateDataUser'])->name('formUpdateDataUser');
-    Route::post('/formUpdateDataUser', [MasterController::class, 'updateDataUserProcess'])->name('updateDataUserProcess');
+    Route::get('/formUpdateDataUser', [UserController::class, 'formUpdateDataUser'])->name('formUpdateDataUser');
+    Route::post('/formUpdateDataUser', [UserController::class, 'updateDataUserProcess'])->name('updateDataUserProcess');
 
     // profile 
-    Route::get('/profile', [MasterController::class, 'profilePage'])->name('profilePage');
-    Route::post('/updateProfile', [MasterController::class, 'updateProfile'])->name('updateProfile');
-    Route::get('/updateProfilePage', [MasterController::class,'updateProfilePage'])->name('updateProfilePage');
+    Route::get('/profile', [UserController::class, 'profilePage'])->name('profilePage');
+    Route::get('/updateProfilePage', [UserController::class,'updateProfilePage'])->name('updateProfilePage');
+    Route::post('/updateProfile', [UserController::class, 'updateProfile'])->name('updateProfile');
 
     // cart 
-    Route::get('/cart', [MasterController::class, 'cartPage'])->name('cartPage');
-    Route::post('/cart', [MasterController::class, 'addToCart'])->name('addToCart');
-    Route::delete('/cart/{id}', [MasterController::class, 'deleteItemCart'])->name('deleteItemCart');
+    Route::get('/cart', [CartController::class, 'cartPage'])->name('cartPage');
+    Route::post('/cart', [CartController::class, 'addToCart'])->name('addToCart');
+    Route::delete('/cart/{id}', [CartController::class, 'deleteItemCart'])->name('deleteItemCart');
     
     // formCheckOut 
     Route::get('/formCheckout', [MasterController::class, 'formCheckout'])->name('formCheckout');
