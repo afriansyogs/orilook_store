@@ -1,4 +1,4 @@
-<div class="mb-12 md:mb-14 lg:mb-20 mt-12 md:mt-20 lg:mt-24 ms-[10px] md:ms-8 lg:ms-[70px] w-[95%] md:w-[91%] lg:w-[90%]">
+<div class="mb-12 md:mb-14 lg:mb-20 mt-12 md:mt-20 lg:mt-24 w-full md:px-4">
   <div class="flex flex-col md:flex-row md:gap-24 lg:gap-x-36 space-y-14 md:space-y-0 justify-center">
     @foreach ($serviceData as $items)
       <div class="flex flex-col items-center" data-aos="zoom-out">

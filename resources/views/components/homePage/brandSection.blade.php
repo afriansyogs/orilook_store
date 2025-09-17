@@ -1,4 +1,4 @@
-<div class="container mx-auto p-4" data-aos="fade-up" data-aos-duration="600">
+<div class="w-full mx-auto p-4" data-aos="fade-up" data-aos-duration="600">
   {{-- <h2 class="text-2xl font-bold text-center mb-6">Cari Brand Sepatumu!</h2> --}}
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 justify-items-center">
       @foreach($brands as $brand)

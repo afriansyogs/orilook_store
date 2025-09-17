@@ -1,5 +1,12 @@
-<main class=" text-white h-screen bg-gradient-to-b from-red-600 to-gray-100 w-full">
-    <div class="container mx-auto text-center py-16 px-6">
+{{-- <style>
+  section, div {
+    outline: 1px dashed red;
+  }
+</style> --}}
+
+
+<section class=" text-white h-screen bg-gradient-to-b from-red-600 to-gray-100 w-full">
+    <div class="w-full text-center py-16 px-6">
         <h1 class="text-4xl md:text-6xl font-bold mb-4 mt-10" data-aos="fade-up" data-aos-duration="500">Cari Gayamu!</h1>
         <p class="text-lg md:text-xl mb-8" data-aos="fade-up" data-aos-duration="800">Temukan sepatu kece yang bikin kamu makin pede</p>
         <div class="flex justify-center mb-8 gap-x-5" data-aos="fade-up" data-aos-duration="800">
@@ -10,8 +17,8 @@
                 STORE</a>
         </div>
         <div class="flex justify-center">
-            <img alt="Green sneaker" class="home_img mx-auto" height="300"
-                src="{{ asset('assets/img/shoesHome.png') }}" width="600"  data-aos="fade-up" data-aos-duration="1000"/>
+            <img alt="Green sneaker" class="home_img mx-auto w-80 h-auto md:w-[400px] lg:w-[600px] lg:h-80" 
+                src="{{ asset('assets/img/shoesHome.png') }}"   data-aos="fade-up" data-aos-duration="1000"/>
         </div>
     </div>
-</main>
+</section>

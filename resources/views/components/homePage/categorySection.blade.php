@@ -1,4 +1,4 @@
-<div id="categorySection" class="mt-12 lg:mt-20 ms-[10px] md:ms-8 lg:ms-[70px] w-[95%] md:w-[91%] lg:w-[90%] border-b-2 border-base-300 pb-20">
+<div id="categorySection" class="mt-12 lg:mt-20 px-[20px] md:ps-8  w-full border-b-2 border-base-300 pb-20">
     <x-point text="Categories" />
     <div class="mt-2 flex items-end">
         <div class="text-2xl md:text-4xl lg:text-[36px] font-bold">Browse By Category</div>
