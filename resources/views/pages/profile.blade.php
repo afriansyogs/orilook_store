@@ -2,7 +2,6 @@
 @section('content')
 <div class="pt-20 md:pt-0 min-h-screen bg-gradient-to-br bg-base-200 flex items-center justify-center p-6">
   <div class="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-5xl lg:max-w-7xl flex flex-col lg:flex-row items-center lg:items-center p-6 lg:h-auto">
-    
     {{-- Bagian Gambar (Tengah atas-bawah di Laptop, Atas di Mobile & Tablet) --}}
     <div class="w-full flex justify-center lg:w-1/3">
       <div class="w-40 h-40 md:w-48 md:h-48 lg:h-56 lg:w-56 rounded-full ring-4 ring-red-500 ring-offset-2 overflow-hidden">

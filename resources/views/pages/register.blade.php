@@ -12,15 +12,12 @@
             <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-0">
                 <img src="{{ asset('assets/img/sunday.png') }}" alt="Sunday" class="w-full max-w-md lg:max-w-lg h-auto drop-shadow-lg" />
             </div>
-        
             <!-- Bagian Kanan: Form -->
             <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-10 shadow-xl">
                 <div class="w-full max-w-md lg:max-w-lg">
                     <h1 class="text-4xl md:text-5xl font-bold text-center text-black mb-8">Create Account</h1>
-        
                     <form method="POST" action="{{ route('registerProcess') }}" class="space-y-6">
                         @csrf
-        
                         <!-- Name -->
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Name</label>
@@ -31,7 +28,6 @@
                                 <small class="text-red-400">{{ $message }}</small>
                             @enderror
                         </div>
-        
                         <!-- Email -->
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
@@ -42,7 +38,6 @@
                                 <small class="text-red-400">{{ $message }}</small>
                             @enderror
                         </div>
-        
                         <!-- Password -->
                         <div class="relative">
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
@@ -56,7 +51,6 @@
                                 <small class="text-red-400">{{ $message }}</small>
                             @enderror
                         </div>
-
                         {{-- password confirmation  --}}
                         <div class="relative">
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="password_confirmation">Password</label>
@@ -70,16 +64,12 @@
                                 <small class="text-red-400">{{ $message }}</small>
                             @enderror
                         </div>
-
                         <!-- Tombol Register -->
                         <button type="submit"
                             class="w-full h-14 bg-red-500 rounded-md border-2 border-red-500 hover:bg-white hover:text-red-500 active:scale-105 transform duration-200 text-white font-semibold">
                             Register
                         </button>
-        
-                        <!-- Or -->
                         <div class="text-center text-base font-medium my-2">Or</div>
-        
                         <!-- Login -->
                         <div class="text-center text-base">
                             Already have an account? 
@@ -103,19 +93,18 @@
             }
             
             document.addEventListener("DOMContentLoaded", () => {
-        // Menampilkan SweetAlert2 jika ada pesan sukses
-        @if (session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: "{{ session('success') }}",
-                confirmButtonText: 'OK'
+                @if (session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: "{{ session('success') }}",
+                        confirmButtonText: 'OK'
+                    });
+                @endif
             });
-        @endif
-    });
         </script>
-    @if (session('success'))
-    <alert class="">{{ session('success') }}</alert>
-@endif
+        @if (session('success'))
+        <alert class="">{{ session('success') }}</alert>
+    @endif
     </body>
 </html>

@@ -8,13 +8,11 @@
             <div class="w-20 h-1 bg-gradient-to-r from-red-600 to-red-800 mx-auto rounded-full"></div>
         </div>
 
-        <!-- Reviews Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-aos="fade-up" data-aos-duration="800">
             @foreach ($review as $review)
                 <div class="group">
                     <div
                         class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 hover:-translate-y-1">
-                        <!-- User Info Section -->
                         <div class="flex items-start space-x-4">
                             <div class="flex-shrink-0">
                                 <div class="relative">
@@ -43,7 +41,6 @@
                                 <h3 class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition-colors">
                                     {{ $review->user->name }}
                                 </h3>
-
                                 <!-- Star Rating -->
                                 <div class="flex items-center gap-1 mt-2">
                                     @for ($i = 1; $i <= 5; $i++)
@@ -63,8 +60,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Review Content -->
                         <div class="mt-4">
                             <div class="relative">
                                 <svg class="absolute -top-2 -left-2 w-8 h-8 text-red-600 transform -rotate-12"
@@ -77,14 +72,10 @@
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Review Footer -->
                         <div class="mt-6 flex items-center justify-between">
                             <span class="text-sm text-gray-500">
                                 {{ $review->created_at->diffForHumans() }}
                             </span>
-
-                            <!-- Helpful Button -->
                             <button
                                 class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -308,40 +308,6 @@ class MasterController extends Controller
     }
   }
 
-  // public function checkPaymentStatus($order_code)
-  // {
-  //   try {
-  //     $status = \Midtrans\Transaction::status($order_code);
-  //     $transactionStatus = $status->transaction_status; // Status dari Midtrans
-
-  //     $order = Order::where('order_code', $order_code)->first();
-  //     if (!$order) {
-  //       return response()->json(['error' => 'Order not found'], 404);
-  //     }
-
-  //     // Cek status transaksi dari Midtrans dan update `payment_status`
-  //     if (in_array($transactionStatus, ['settlement', 'capture'])) {
-  //       $order->update([
-  //         'payment_status' => 'paid',
-  //         'status' => 'processed' // Jika ingin mengubah status pesanan juga
-  //       ]);
-  //     } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire', 'failure'])) {
-  //       $order->update([
-  //         'payment_status' => 'failed',
-  //         'status' => 'canceled'
-  //       ]);
-  //     }
-
-  //     return response()->json([
-  //       'message' => 'Order status updated',
-  //       'payment_status' => $order->payment_status
-  //     ]);
-  //   } catch (\Exception $e) {
-  //     Log::error("Check Payment Error: " . $e->getMessage());
-  //     return response()->json(['error' => 'Server error'], 500);
-  //   }
-  // }
-
   public function updatePayment(Request $request)
   {
     $order = Order::where('order_code', $request->order_id)->first();
@@ -356,38 +322,6 @@ class MasterController extends Controller
     return response()->json(['success' => true, 'message' => 'Status pembayaran diperbarui']);
   } 
 
-  // orderPage
-  // public function orderPage()
-  // {
-  //   $users = Auth::user();
-  //   if ($users) {
-  //     $orderItem = Order::where('user_id', $users->id)
-  //                         ->with([
-  //                             'user',
-  //                             'product',
-  //                             'payment',
-  //                             'city',
-  //                             'sizeStock',
-  //                             'voucher'
-  //                             ])
-  //                         ->latest()
-  //                         ->get();
-
-  //     foreach ($orderItem as $order) {
-  //       $order->decoded_items = json_decode($order->order_item, true);
-  //       foreach ($order->decoded_items as &$item) {
-  //         // Temukan produk berdasarkan product_id
-  //         $product = Product::find($item['product_id']);
-  //         $item['product_name'] = $product ? $product->product_name : 'Unknown';
-  //         $item['product_img'] = $product ? $product->product_img : 'Unknown';
-  //         $item['discounted_price'] = $product ? $product->discounted_price : 'Unknown';
-  //       }
-  //     }
-  //     return view('pages.order', compact('orderItem'));
-  //   }
-  //   return redirect()->route('/');
-  // }
-
   public function orderPage() {
     $user = Auth::user();
     if ($user) {
@@ -397,7 +331,6 @@ class MasterController extends Controller
 
     return redirect()->route('/');
 }
-
 
   public function detailOrder($id): View {
     $orderDetail = Order::with(['user', 'payment', 'city', 'voucher'])->findOrFail($id);
@@ -472,10 +405,8 @@ class MasterController extends Controller
     $userId = auth()->user()->id;
     Log::info('User ID:', ['user_id' => $userId]);
 
-    // 🔥 Ambil cartQuantities dari request
     $cartQuantities = $request->input('cartQuantities', []);
 
-    // 🔥 Perbaikan format selectedCartIds
     $selectedCartIds = $request->input('selectedCartIds', []);
     if (is_array($selectedCartIds)) {
       $selectedCartIds = array_keys($selectedCartIds);
@@ -486,10 +417,9 @@ class MasterController extends Controller
 
     Log::info('Selected Cart IDs (Fixed):', ['ids' => $selectedCartIds]);
 
-    // 🔥 Pastikan whereIn tidak error meskipun hanya ada 1 ID
     $whereInData = !empty($selectedCartIds) ? $selectedCartIds : [0];
 
-    // 🔥 Debugging Query SQL
+    
     $query = Cart::where('user_id', $userId)
       ->whereIn('id', $whereInData)
       ->toSql();
@@ -500,7 +430,6 @@ class MasterController extends Controller
 
     Log::info('Query SQL (Fixed):', ['query' => $query, 'bindings' => $bindings]);
 
-    // Ambil item yang dichecklist
     $cartItems = Cart::where('user_id', $userId)
       ->whereIn('id', $whereInData)
       ->with(['product', 'sizeStock'])
@@ -518,7 +447,6 @@ class MasterController extends Controller
           ->where('size', optional($item->sizeStock)->size)
           ->firstOrFail();
 
-        // 🔥 Perbaikan: Ambil jumlah kuantitas dengan aman
         $quantity = isset($cartQuantities[$item->id]) ? intval($cartQuantities[$item->id]) : 0;
 
         if ($sizeStock->stock < $quantity) {
@@ -527,14 +455,12 @@ class MasterController extends Controller
 
         $basePrice = $item->product->discounted_price * $quantity;
 
-        // Menghitung ongkir
         $shippingCost = 0;
         if ($request->city_id) {
           $city = City::find($request->city_id);
           $shippingCost = $city ? $city->shipping_price : 0;
         }
 
-        // 🔥 Perbaikan: Ambil voucher_id langsung dari request
         $voucherDiscount = 0;
         $voucherId = $request->voucher_id;
         if ($voucherId) {
@@ -544,10 +470,8 @@ class MasterController extends Controller
           }
         }
 
-        // Menghitung total keseluruhan
         $totalAmount = max(0, $basePrice + $shippingCost - $voucherDiscount);
 
-        // Handle file upload
         $buktiPembayaran = null;
         if ($request->hasFile('payment_proof')) {
           $buktiPembayaran = $request->file('payment_proof')->store('payment_proof', 'public');
@@ -578,7 +502,6 @@ class MasterController extends Controller
         Log::info('Query yang dijalankan:', DB::getQueryLog());
       }
 
-      // Hapus item dari keranjang setelah dibuat order
       Cart::where('user_id', $userId)
         ->whereIn('id', $whereInData)
         ->delete();
@@ -589,7 +512,6 @@ class MasterController extends Controller
       Log::error('Error saat membuat pesanan: ' . $e->getMessage());
       DB::rollBack();
 
-      // 🔥 Perbaikan: Kembalikan stok produk jika terjadi error
       foreach ($cartItems as $item) {
         if (isset($cartQuantities[$item->id])) {
           $sizeStock = SizeStockProduct::where('product_id', $item->product->id)

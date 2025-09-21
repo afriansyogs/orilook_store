@@ -93,6 +93,5 @@ class ProductSeeder extends Seeder
             Happy Shopping :)
             Terima Kasih',
         ]);
-
     }
 }

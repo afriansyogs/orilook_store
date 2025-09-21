@@ -15,7 +15,7 @@ class Order extends Model
         'product_id',
         'size_stock_product_id',
         'voucher_id',
-        'order_code', // ID unik pesanan
+        'order_code',
         'payment_id',
         'payment_token', 
         'payment_status', 
@@ -45,11 +45,9 @@ class Order extends Model
         $productIds = collect($orderItems)->pluck('product_id')->unique()->toArray();
         $sizeStockIds = collect($orderItems)->pluck('size_stock_product_id')->unique()->toArray();
         
-        // Load semua data sekali saja (eager loading)
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
         $sizeStocks = SizeStockProduct::whereIn('id', $sizeStockIds)->get()->keyBy('id');
         
-        // Map order items dengan data yang sudah di-load
         return collect($orderItems)->map(function($item) use ($products, $sizeStocks) {
             $productId = $item['product_id'];
             $sizeStockId = $item['size_stock_product_id'];
@@ -100,7 +98,6 @@ class Order extends Model
                 $sizeStock = \App\Models\SizeStockProduct::find($order->size_stock_product_id);
 
                 if ($sizeStock) {
-                    // Pastikan stok tidak negatif
                     $sizeStock->stock = max(0, $sizeStock->stock - $order->qty);
                     $sizeStock->save();
                 }
