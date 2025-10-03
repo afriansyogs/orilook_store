@@ -96,7 +96,6 @@
     });
       return;
   }
-  // Simpan ID size
   document.getElementById('size_stock_product_id').value = sizeStockId;
   }
 </script>

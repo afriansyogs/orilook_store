@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const shippingPrice = document.getElementById("shipping_price");
     const shippingPriceTotal = document.getElementById("shipping_price_total");
     const totalPrice = document.getElementById("total_price");
-
-    // [NEW] Voucher related elements
     const checkVoucherBtn = document.getElementById("check_voucher");
     const voucherInput = document.getElementById("voucher_input");
     const voucherMessage = document.getElementById("voucher_message");
@@ -49,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    // [MODIFIED] City change handler to include voucher
+    //shipping price
     citySelect.addEventListener("change", function () {
         let selectedCity = citySelect.options[citySelect.selectedIndex];
         let shippingCost = selectedCity.dataset.shipping || 0;
@@ -106,12 +104,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // uppercase 
     voucherInput.addEventListener("input", function () {
         voucherInput.value = voucherInput.value.toUpperCase();
     });
 
-    // [NEW] Voucher check handler
+    // Voucher check
     checkVoucherBtn.addEventListener("click", function () {
         const voucherName = voucherInput.value.trim();
         if (!voucherName) {
@@ -129,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     'meta[name="csrf-token"]'
                 ).content,
             },
-            body: JSON.stringify({ voucher_name: voucherName.toUpperCase() }), // Convert ke uppercase sebelum dikirim
+            body: JSON.stringify({ voucher_name: voucherName.toUpperCase() }),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -151,49 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    // [NEW] Total price update function
+    // Total harga 
     function updateTotalPrice() {
         const subtotal = parseInt(window.orderSubtotal) || 0;
         const shippingCost = parseInt(shippingPrice.textContent) || 0;
         const total = subtotal + shippingCost - currentVoucherDiscount;
         totalPrice.textContent = total.toLocaleString("id-ID");
     }
-
-    // checkoutButton.addEventListener("click", function (event) {
-    //     event.preventDefault();
-    //         fetch("/get-midtrans-token", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 "X-CSRF-TOKEN": document.querySelector(
-    //                 'meta[name="csrf-token"]'
-    //             ).content,
-    //             },
-    //             body: JSON.stringify({
-    //                 total: window.orderSubtotal
-    //             })
-    //         })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             if (data.token) {
-    //                 window.snap.pay(data.token, {
-    //                     onSuccess: function(result) {
-    //                         alert("Pembayaran berhasil!");
-    //                         // window.location.href = "/checkout/success";
-    //                     },
-    //                     onPending: function(result) {
-    //                         alert("Menunggu pembayaran!");
-    //                     },
-    //                     onError: function(result) {
-    //                         alert("Pembayaran gagal!");
-    //                     },
-    //                     onClose: function() {
-    //                         alert("Anda menutup pop-up pembayaran!");
-    //                     }
-    //                 });
-    //             }
-    //         })
-    //         .catch(error => console.log("Error:", error));
-
-    // });
 });

@@ -1,8 +1,5 @@
 <footer class="relative bg-gray-900">
-  <!-- Decorative Top Border -->
   <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-red-500 to-red-600"></div>
-
-  <!-- Main Footer Content -->
   <div class="container mx-auto px-4 py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
       <!-- Company Info -->
@@ -28,7 +25,6 @@
           </a>
         </div>
       </div>
-
       <!-- Quick Links -->
       <div>
         <h4 class="text-lg font-bold text-white mb-6">Links</h4>
@@ -44,7 +40,6 @@
           @endforeach
         </ul>
       </div>
-
       <!-- Help & Support -->
       <div>
         <h4 class="text-lg font-bold text-white mb-6">Information</h4>
@@ -58,7 +53,6 @@
       @endforeach
         </ul>
       </div>
-
       <!-- Contact Info -->
       <div>
         <h4 class="text-lg font-bold text-white mb-6">Contact Us</h4>

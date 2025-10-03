@@ -67,11 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
             quantity--;
         }
 
-        // Update quantity display and dataset
         quantityElement.dataset.qty = quantity;
         quantityElement.textContent = quantity;
 
-        // Update total price
         updateItemTotal(itemId, quantity, price);
 
         // Update localStorage
@@ -95,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
         const cartData = JSON.parse(localStorage.getItem("cartQuantities")) || {};
         const selectedCartIds = JSON.parse(localStorage.getItem("selectedCartIds")) || [];
-        // Mengembalikan kuantitas yang tersimpan untuk setiap item
         document.querySelectorAll(".quantity").forEach((qtyElement) => {
             const itemId = qtyElement.dataset.id;
             if (cartData[itemId]) {
@@ -116,12 +113,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         updateGrandTotal();
     
-        // Update input hidden untuk checkout
         document.getElementById("cart-quantities").value = JSON.stringify(cartData);
         document.getElementById("selectedCartIds").value = JSON.stringify(selectedCartIds);
     }
     
-    // Event listener untuk tombol tambah/kurang qty
+
     if (cartItemsContainer) {
         cartItemsContainer.addEventListener("click", (event) => {
             if (event.target.classList.contains("btn-qty")) {
@@ -130,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
-    // Event listener untuk checkbox item cart
+    // checkbox item cart
     document.querySelectorAll('.cart-checkbox').forEach((checkbox) => {
         checkbox.addEventListener('change', function() {
             let selectedCartIds = [];
@@ -145,20 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     
-    // Listen untuk form checkout
+    // form checkout
     const checkoutForm = document.querySelector('form[action*="formCheckout"]');
     if (checkoutForm) {
         checkoutForm.addEventListener("submit", (e) => {
             const cartData = JSON.parse(localStorage.getItem("cartQuantities")) || {};
             const selectedCartIds = JSON.parse(localStorage.getItem("selectedCartIds")) || [];
     
-            // Kirim data quantities dan selected items ke form
             document.getElementById("cart-quantities").value = JSON.stringify(cartData);
             document.getElementById("selectedCartIds").value = JSON.stringify(selectedCartIds);
         });
     }
     
-    // Inisialisasi cart saat halaman dimuat
     loadQuantitiesFromStorage();
     
 });

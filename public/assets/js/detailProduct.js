@@ -10,17 +10,14 @@ function updateQuantity(change) {
 }
 
 function selectVariant(button, sizeStockId) {
-    // Hapus kelas 'btn-primary' dari semua tombol ukuran
     document.querySelectorAll(".size-btn").forEach((btn) => {
         btn.classList.remove("btn-primary");
         btn.classList.add("btn-outline");
     });
 
-    // Tambahkan kelas 'btn-primary' ke tombol yang dipilih
     button.classList.add("btn-primary");
     button.classList.remove("btn-outline");
 
-    // Simpan ID ukuran yang dipilih di input tersembunyi
     const stock = button.getAttribute("data-stock");
 
     // Pengecekan apakah stok kosong
@@ -34,6 +31,5 @@ function selectVariant(button, sizeStockId) {
         return;
     }
 
-    // Simpan ID ukuran yang dipilih di input tersembunyi
     document.getElementById("size_stock_product_id").value = sizeStockId;
 }

@@ -10,7 +10,7 @@
         <div class="flex flex-col lg:flex-row w-full bg-white shadow-lg rounded-lg overflow-hidden lg:h-screen">
             <!-- Bagian Kiri: Gambar -->
             <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-0">
-                <img src="{{ asset('assets/img/sunday.png') }}" alt="Sunday" class="w-full max-w-md lg:max-w-lg h-auto drop-shadow-lg" />
+                <img src="{{ asset('assets/img/Sunday.png') }}" alt="Sunday" class="w-full max-w-md lg:max-w-lg h-auto drop-shadow-lg" />
             </div>
             <!-- Bagian Kanan: Form -->
             <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-10 shadow-xl">
