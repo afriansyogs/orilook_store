@@ -11,7 +11,7 @@
         data-client-key="{{ config('services.midtrans.clientKey') }}">
     </script>
 </head>
-<body>
+<body class="overflow-x-hidden">
     @include('components.navbar')
     @yield('content')
     @include('components.footer')

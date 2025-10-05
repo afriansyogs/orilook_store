@@ -68,7 +68,7 @@
     <!-- Products Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       @foreach ($products as $product)
-      <div class="card bg-white hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" data-aos="fade-up" data-aos-duration="800">
+      <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" data-aos="fade-up" data-aos-duration="800">
         <!-- Image Container -->
         <figure class="relative pt-[100%] overflow-hidden group">
           <img 

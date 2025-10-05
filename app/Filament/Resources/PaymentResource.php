@@ -64,10 +64,6 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('payment_img')
-                    ->defaultImageUrl(url('/storage/payment/{filename}'))
-                    ->width(200)
-                    ->height(300),
                 TextColumn::make('payment_name')
                     ->searchable()
                     ->label('Metode Pembayaran'),
